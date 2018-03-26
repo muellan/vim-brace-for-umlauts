@@ -1,29 +1,37 @@
-function! s:Toggle_brackets_on_umlauts()
-  let s:init = !exists('g:brace4umlaut_active') 
-  if s:init
-    let g:brace4umlaut_active = 0
-  endif
+" custom fzf extensions
+let s:cpo_save = &cpo
+set cpo&vim
+
+"------------------------------------------------------------------------------
+" insert and command mode mappings
+"------------------------------------------------------------------------------
+function! s:Braces_on_umlauts()
   " lang-arg mappings: insert, command-line, regexp mode
-  if g:brace4umlaut_active == 0
-    " insert mode
-    imap ö :
-    imap Ö \
-    imap ü [
-    imap Ü {
-    imap ä ]
-    imap Ä }
-    " command mode
-    cmap ö :
-    cmap Ö \
-    cmap ü [
-    cmap Ü {
-    cmap ä ]
-    cmap Ä }
-    let g:brace4umlaut_active = 1
-    if !s:init 
-      echo 'Umlauts -> Braces'
-    endif
-  else
+  let s:init = !exists('g:brace4umlaut_active') 
+  let g:brace4umlaut_active = 1
+  " insert mode
+  imap ö :
+  imap Ö \
+  imap ü [
+  imap Ü {
+  imap ä ]
+  imap Ä }
+  imap <c-r>ö <c-r>:
+  " command mode
+  cmap ö :
+  cmap Ö \
+  cmap ü [
+  cmap Ü {
+  cmap ä ]
+  cmap Ä }
+  if !s:init | echo 'Umlauts -> Braces' | endif
+endfunction
+
+function! s:No_braces_on_umlauts()
+  " lang-arg mappings: insert, command-line, regexp mode
+  let s:init = !exists('g:brace4umlaut_active') 
+  let g:brace4umlaut_active = 0
+  if !s:init 
     " insert mode
     iunmap ö
     iunmap Ö
@@ -38,19 +46,30 @@ function! s:Toggle_brackets_on_umlauts()
     cunmap Ü
     cunmap ä
     cunmap Ä
-    let g:brace4umlaut_active = 0
-    if !s:init 
-      echo 'NO Braces on Umlauts'
-    endif
+    echo 'NO Braces on Umlauts'
+  endif
+endfunction
+
+function! s:Toggle_braces_on_umlauts()
+  if g:brace4umlaut_active == 0 || !exists('g:brace4umlaut_active') 
+    call s:Braces_on_umlauts()
+  else
+    call s:No_braces_on_umlauts()
   endif
 endfunction
 
 
 "------------------------------------------------------------------------------
-" toggle insert mode mappings
-command! UmlautsToggle :call s:Toggle_brackets_on_umlauts()
-nnoremap <silent> Zö :UmlautsToggle<cr>
+" control insert and command mode mappings
+"------------------------------------------------------------------------------
+command! Umlauts       :call s:Braces_on_umlauts()
+command! NoUmlauts     :call s:No_braces_on_umlauts()
+command! UmlautsToggle :call s:Toggle_braces_on_umlauts()
 
+
+"------------------------------------------------------------------------------
+" normal and visual mode mappings
+"------------------------------------------------------------------------------
 " invoke command line
 nmap ö :
 vmap ö :
@@ -226,5 +245,9 @@ vmap äÄ ]}
 nmap ä) ])
 vmap ä) ])
 
-UmlautsToggle
+" activate
+Umlauts
+
+let &cpo = s:cpo_save
+unlet s:cpo_save
 
